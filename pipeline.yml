@@ -1,5 +1,4 @@
----
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: Pipeline using CodePipeline and CodeBuild for continuous delivery of a single-page application to S3
 Parameters:
   SARFunctionName:
@@ -48,8 +47,8 @@ Conditions:
   HasGitHubToken:
     "Fn::Not":
       - "Fn::Equals":
-        - ""
-        - !Ref GitHubToken
+          - ""
+          - !Ref GitHubToken
 Resources:
   BuildRole:
     Type: AWS::IAM::Role
@@ -57,61 +56,61 @@ Resources:
       RoleName: pipeline-dashboard-codebuild
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - codebuild.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
       Path: "/"
       Policies:
-      - PolicyName: push-image
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Action:
-            - s3:CreateBucket
-            - s3:ListBucket
-            - s3:PutBucketPolicy
-            - lambda:*
-            Resource: !Sub arn:aws:s3:::${StagingBucket}
-            Effect: Allow
-          - Action:
-            - s3:GetObject
-            - s3:GetObjectVersion
-            - s3:PutObject
-            - lambda:*
-            Resource: !Sub arn:aws:s3:::${StagingBucket}/*
-            Effect: Allow
-          - Action:
-            - s3:CreateBucket
-            - s3:ListBucket
-            - s3:PutBucketPolicy
-            - lambda:*
-            Resource: !Sub arn:aws:s3:::${PipelineBucket}
-            Effect: Allow
-          - Action:
-            - s3:GetObject
-            - s3:GetObjectVersion
-            - s3:PutObject
-            - lambda:*  
-            Resource: !Sub arn:aws:s3:::${PipelineBucket}/*
-            Effect: Allow
-          - Action:
-            - logs:CreateLogGroup
-            - logs:CreateLogStream
-            - logs:PutLogEvents
-            Effect: Allow
-            Resource: '*'
+        - PolicyName: push-image
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - s3:CreateBucket
+                  - s3:ListBucket
+                  - s3:PutBucketPolicy
+                  - lambda:*
+                Resource: !Sub arn:aws:s3:::${StagingBucket}
+                Effect: Allow
+              - Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                  - lambda:*
+                Resource: !Sub arn:aws:s3:::${StagingBucket}/*
+                Effect: Allow
+              - Action:
+                  - s3:CreateBucket
+                  - s3:ListBucket
+                  - s3:PutBucketPolicy
+                  - lambda:*
+                Resource: !Sub arn:aws:s3:::${PipelineBucket}
+                Effect: Allow
+              - Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                  - lambda:*
+                Resource: !Sub arn:aws:s3:::${PipelineBucket}/*
+                Effect: Allow
+              - Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource: "*"
   BuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
       Environment:
         EnvironmentVariables:
-        - Name: STAGING_BUCKET_PREFIX
-          Value: !Ref StagingBucketPrefix
+          - Name: STAGING_BUCKET_PREFIX
+            Value: !Ref StagingBucketPrefix
         Type: LINUX_CONTAINER
-        Image: aws/codebuild/nodejs:8.11.0
+        Image: aws/codebuild/standard:3.0
         ComputeType: BUILD_GENERAL1_SMALL
       Name: pipeline-dashboard
       Description: Stage pipeline-dashboard
@@ -120,7 +119,7 @@ Resources:
         Type: CODEPIPELINE
       # should be true, but webhook from CFN was failing?!
       #Triggers:
-      #  Webhook: true 
+      #  Webhook: true
       Artifacts:
         Type: CODEPIPELINE
   StagingBucket:
@@ -132,56 +131,56 @@ Resources:
     Properties:
       Bucket: !Ref StagingBucket
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Id: StagingBucketPolicy
         Statement:
-        - Sid: PublicAccess
-          Effect: Allow
-          Principal: '*'
-          Action: s3:GetObject
-          Resource: !Sub arn:aws:s3:::${StagingBucket}/*
+          - Sid: PublicAccess
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub arn:aws:s3:::${StagingBucket}/*
   CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - codepipeline.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action:
+              - sts:AssumeRole
       Path: "/"
       Policies:
-      - PolicyName: codepipeline-service
-        PolicyDocument:
-          Statement:
-          - Action:
-            - codebuild:*
-            Resource: "*"
-            Effect: Allow
-          - Action:
-            - lambda:*
-            Resource: "*"
-            Effect: Allow
-          - Action:
-            - s3:GetObject
-            - s3:GetObjectVersion
-            - s3:GetBucketVersioning
-            Resource: "*"
-            Effect: Allow
-          - Action:
-            - s3:PutObject
-            Resource:
-            - arn:aws:s3:::codepipeline*
-            Effect: Allow
-          - Action:
-            - s3:*
-            - cloudformation:*
-            - iam:PassRole
-            Resource: "*"
-            Effect: Allow
-          Version: '2012-10-17'
+        - PolicyName: codepipeline-service
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - codebuild:*
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - lambda:*
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                Resource: "*"
+                Effect: Allow
+              - Action:
+                  - s3:PutObject
+                Resource:
+                  - arn:aws:s3:::codepipeline*
+                Effect: Allow
+              - Action:
+                  - s3:*
+                  - cloudformation:*
+                  - iam:PassRole
+                Resource: "*"
+                Effect: Allow
+            Version: "2012-10-17"
   PipelineBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
@@ -190,51 +189,51 @@ Resources:
     Properties:
       RoleArn: !GetAtt CodePipelineRole.Arn
       Stages:
-      - Name: Source
-        Actions:
-        - InputArtifacts: []
-          Name: Source
-          ActionTypeId:
-            Category: Source
-            Owner: ThirdParty
-            Version: '1'
-            Provider: GitHub
-          OutputArtifacts:
-          - Name: SourceArtifacts
-          Configuration:
-            Owner: !Ref GitHubUser
-            Repo: !Ref GitHubRepoCPL
-            Branch: !Ref GitHubBranch
-            OAuthToken: !Ref GitHubToken
-          RunOrder: 1
-      - Name: Build
-        Actions:
-        - Name: BuildLambdaFunction
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Version: '1'
-            Provider: CodeBuild
-          InputArtifacts:
-          - Name: SourceArtifacts
-          OutputArtifacts:
-          - Name: BuildArtifact
-          Configuration:
-            ProjectName: !Ref BuildProject
-          RunOrder: 1
-      - Name: Publish
-        Actions:
-        - Name: PublishToSAR
-          ActionTypeId:
-            Category: Invoke
-            Owner: AWS
-            Version: '1'
-            Provider: Lambda
-          InputArtifacts:
-          - Name: BuildArtifact
-          Configuration:
-            FunctionName: !Ref SARFunctionName
-          RunOrder: 1
+        - Name: Source
+          Actions:
+            - InputArtifacts: []
+              Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: "1"
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: SourceArtifacts
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepoCPL
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: BuildLambdaFunction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: "1"
+                Provider: CodeBuild
+              InputArtifacts:
+                - Name: SourceArtifacts
+              OutputArtifacts:
+                - Name: BuildArtifact
+              Configuration:
+                ProjectName: !Ref BuildProject
+              RunOrder: 1
+        - Name: Publish
+          Actions:
+            - Name: PublishToSAR
+              ActionTypeId:
+                Category: Invoke
+                Owner: AWS
+                Version: "1"
+                Provider: Lambda
+              InputArtifacts:
+                - Name: BuildArtifact
+              Configuration:
+                FunctionName: !Ref SARFunctionName
+              RunOrder: 1
       ArtifactStore:
         Type: S3
         Location: !Ref PipelineBucket
@@ -242,5 +241,3 @@ Outputs:
   PipelineUrl:
     Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
     Description: CodePipeline URL
-
-
