@@ -1,5 +1,5 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Create CodeBuild project to stage pipeline-dashboard'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Create CodeBuild project to stage pipeline-dashboard"
 Parameters:
   StagingBucketPrefix:
     Type: String
@@ -18,8 +18,8 @@ Conditions:
   HasGitHubToken:
     "Fn::Not":
       - "Fn::Equals":
-        - ""
-        - !Ref GitHubToken
+          - ""
+          - !Ref GitHubToken
 Resources:
   BuildRole:
     Type: AWS::IAM::Role
@@ -27,54 +27,53 @@ Resources:
       RoleName: pipeline-dashboard-codebuild
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - codebuild.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
       Path: "/"
       Policies:
-      - PolicyName: push-image
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Action:
-            - s3:CreateBucket
-            - s3:ListBucket
-            - s3:PutBucketPolicy
-            Resource: !Sub arn:aws:s3:::${StagingBucket}
-            Effect: Allow
-          - Action:
-            - s3:GetObject
-            - s3:GetObjectVersion
-            - s3:PutObject
-            Resource: !Sub arn:aws:s3:::${StagingBucket}/*
-            Effect: Allow
-          - Action:
-            - logs:CreateLogGroup
-            - logs:CreateLogStream
-            - logs:PutLogEvents
-            Effect: Allow
-            Resource: '*'
+        - PolicyName: push-image
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - s3:CreateBucket
+                  - s3:ListBucket
+                  - s3:PutBucketPolicy
+                Resource: !Sub arn:aws:s3:::${StagingBucket}
+                Effect: Allow
+              - Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource: !Sub arn:aws:s3:::${StagingBucket}/*
+                Effect: Allow
+              - Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource: "*"
 
   BuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
-      BadgeEnabled: true 
+      BadgeEnabled: true
       Environment:
         EnvironmentVariables:
-        - Name: STAGING_BUCKET_PREFIX
-          Value: !Ref StagingBucketPrefix
+          - Name: STAGING_BUCKET_PREFIX
+            Value: !Ref StagingBucketPrefix
         Type: LINUX_CONTAINER
-        Image: aws/codebuild/nodejs:8.11.0
+        Image: aws/codebuild/standard:3.0
         ComputeType: BUILD_GENERAL1_SMALL
       Name: pipeline-dashboard
       Description: Stage pipeline-dashboard
       ServiceRole: !GetAtt BuildRole.Arn
       Source:
-        Auth: 
-          !If
+        Auth: !If
           - HasGitHubToken
           - Type: OAUTH
             Resource: !Ref GitHubToken
@@ -83,7 +82,7 @@ Resources:
         Location: !Ref GitHubRepo
       # should be true, but webhook from CFN was failing?!
       #Triggers:
-      #  Webhook: true 
+      #  Webhook: true
       Artifacts:
         Type: NO_ARTIFACTS
   StagingBucket:
@@ -95,14 +94,14 @@ Resources:
     Properties:
       Bucket: !Ref StagingBucket
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Id: StagingBucketPolicy
         Statement:
-        - Sid: PublicAccess
-          Effect: Allow
-          Principal: '*'
-          Action: s3:GetObject
-          Resource: !Sub arn:aws:s3:::${StagingBucket}/*
+          - Sid: PublicAccess
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub arn:aws:s3:::${StagingBucket}/*
 Outputs:
   CodeBuildProject:
     Value: !Sub https://console.aws.amazon.com/codebuild/home?region=${AWS::Region}#/projects/pipeline-dashboard/view
