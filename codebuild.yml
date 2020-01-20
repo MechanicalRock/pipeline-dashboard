@@ -4,7 +4,7 @@ Parameters:
   StagingBucketPrefix:
     Type: String
     Description: Prefix for bucket to stage artifact to
-    Default: pipeline-dashboard-node-0811
+    Default: pipeline-dashboard-node-12
   GitHubRepo:
     Type: String
     Description: URL for source code
@@ -89,6 +89,7 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${StagingBucketPrefix}-${AWS::Region}
+    DeletionPolicy: Retain
   StagingBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
