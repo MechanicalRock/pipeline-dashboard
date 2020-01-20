@@ -40,6 +40,16 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Action:
+                  - serverlessrepo:CreateApplication
+                  - serverlessrepo:CreateApplicationVersion
+                  - serverlessrepo:UpdateApplication
+                  - serverlessrepo:DeleteApplication
+                  - serverlessrepo:ListApplicationVersions
+                Resource:
+                  - !Sub arn:aws:serverlessrepo:${AWS::Region}:${AWS::AccountId}:applications/*
+                  - !Sub arn:aws:serverlessrepo:us-east-1:${AWS::AccountId}:applications/*
+                Effect: Allow
+              - Action:
                   - s3:CreateBucket
                   - s3:ListBucket
                   - s3:PutBucketPolicy
