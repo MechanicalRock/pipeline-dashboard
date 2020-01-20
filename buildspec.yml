@@ -3,15 +3,19 @@ phases:
   install:
     runtime-versions:
       nodejs: 12
+      python: 3.8
     commands:
-      - node -v
+      - pip install aws-sam-cli
       - npm install
-      - node -v
   build:
     commands:
       - npm test
+      - sam --version
+      - mkdir .out
+      - sam package --template-file template.yml --s3-bucket ${STAGING_BUCKET_PREFIX}-${AWS_REGION} --output-template-file .out/packaged.yaml
+      # FIXME - parse the version from the package.json
+      - aws s3 cp .out/packaged.yaml s3://${STAGING_BUCKET_PREFIX}-${AWS_REGION}/1.0.3/template.yml
   post_build:
     commands:
-      - mkdir -p .out
-      - aws cloudformation package --template-file template.yml --s3-bucket ${STAGING_BUCKET_PREFIX}-${AWS_REGION} --output-template-file .out/template.yml
-      - aws s3 cp .out/template.yml s3://${STAGING_BUCKET_PREFIX}-${AWS_REGION}/template.yml
+      - sam publish --template .out/packaged.yaml --region ${AWS_REGION}
+      - sam publish --template .out/packaged.yaml --region us-east-1

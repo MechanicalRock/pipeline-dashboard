@@ -5,6 +5,19 @@ Parameters:
   PipelinePattern:
     Description: "The pattern of pipeline names to allow access to describe.  Recommended value: *"
     Type: String
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: mechanicalrock-pipeline-dashboard
+    Description: Simple dashboard built for viewing pipeline metrics in AWS. Fork of https://github.com/stelligent/pipeline-dashboard Shows trends of pipeline metrics over time
+    Author: Mechanical Rock
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE
+    ReadmeUrl: README.md
+    Labels: ["metrics", "pipeline", "dora"]
+    HomePageUrl: https://github.com/MechanicalRock/pipeline-dashboard
+    SemanticVersion: 1.0.3
+    SourceCodeUrl: https://github.com/MechanicalRock/pipeline-dashboard
 Resources:
   PipelineDashboardEventHandler:
     Type: "AWS::Serverless::Function"
