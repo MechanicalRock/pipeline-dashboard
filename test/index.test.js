@@ -611,7 +611,6 @@ describe('handlePipelineEvent', function() {
       let putMetricDataSpy = sinon.spy();
 
       AWS.mock('CloudWatch', 'putMetricData', (params, cb) => {
-        console.log('Params are: ', JSON.stringify(params));
         putMetricDataSpy(params);
         cb();
       });
@@ -859,7 +858,6 @@ describe('generateDashboardTrend', () => {
                   expect(JSON.stringify(widget.properties.metrics)).to.contain(name);
                 });
               });
-              console.log(pipelineNames);
             });
         });
       }

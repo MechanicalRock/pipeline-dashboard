@@ -73,9 +73,11 @@ class PipelineEventHandler {
 
   handleFinalState(state) {
     switch (state.event.detail.state) {
-      case 'SUCCEEDED':
-        PipelineEventHandler.addMetric(state, 'SuccessCount', COUNT, 1, true);
+      case 'SUCCEEDED': {
+        PipelineEventHandler.addMetric(state, 'SuccessCount', COUNT, 1);
+        PipelineEventHandler.addAccountMetric(state, 'SuccessCount', COUNT, 1);
         break;
+      }
       case 'FAILED':
         PipelineEventHandler.addMetric(state, 'FailureCount', COUNT, 1);
         break;
@@ -117,7 +119,8 @@ class PipelineEventHandler {
       let priorSuccessPlusOneExecution = state.pipelineState.priorSuccessPlusOneExecution;
       if (state.pipelineState.isFinal && priorSuccessPlusOneExecution) {
         let leadDuration = durationInSeconds(priorSuccessPlusOneExecution.startTime, currentExecution.lastUpdateTime);
-        PipelineEventHandler.addMetric(state, 'DeliveryLeadTime', SECONDS, leadDuration, true);
+        PipelineEventHandler.addMetric(state, 'DeliveryLeadTime', SECONDS, leadDuration);
+        PipelineEventHandler.addAccountMetric(state, 'DeliveryLeadTime', SECONDS, leadDuration);
       }
     } else if (currentExecution && currentExecution.status === 'Failed') {
       let duration = durationInSeconds(currentExecution.startTime, currentExecution.lastUpdateTime);
@@ -137,7 +140,25 @@ class PipelineEventHandler {
     }
   }
 
-  static addMetric(state, metricName, unit, value, addAccountMetric = false) {
+  static addAccountMetric(state, metricName, unit, value) {
+    if (value === 0) {
+      return;
+    }
+    state.metricData.push({
+      MetricName: metricName,
+      Dimensions: [
+        {
+          Name: 'account',
+          Value: state.accountNumber,
+        },
+      ],
+      Timestamp: state.eventTime,
+      Value: value,
+      Unit: unit,
+    });
+  }
+
+  static addMetric(state, metricName, unit, value) {
     if (value === 0) {
       return;
     }
@@ -171,22 +192,7 @@ class PipelineEventHandler {
           });
         }
       }
-    }
-
-    state.metricData.push(metric);
-    if (addAccountMetric) {
-      state.metricData.push({
-        MetricName: metricName,
-        Dimensions: [
-          {
-            Name: 'account',
-            Value: state.accountNumber,
-          },
-        ],
-        Timestamp: state.eventTime,
-        Value: value,
-        Unit: unit,
-      });
+      state.metricData.push(metric);
     }
   }
 }
