@@ -5,7 +5,16 @@ Parameters:
   PipelinePattern:
     Description: "The pattern of pipeline names to allow access to describe.  Recommended value: *"
     Type: String
+  PermissionsBoundary:
+    Description: "An optional permissions boundary to apply to all roles"
+    Type: String
+    ConstraintDescription: Must match a valid ARN of an IAM policy for the permission boundary
+    AllowedPattern: "^$|arn:aws:iam::\d{12}:policy/[a-zA-Z]+$"
+    Default: ""
 
+Conditions:
+  HasPermissionBoundary:
+    !Not [!Equals [!Ref PermissionBoundary, ""]]
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: mechanicalrock-pipeline-dashboard
@@ -37,6 +46,7 @@ Resources:
                 - "CodePipeline Pipeline Execution State Change"
                 - "CodePipeline Stage Execution State Change"
                 - "CodePipeline Action Execution State Change"
+      PermissionsBoundary: !If [HasPermissionBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
       Policies:
         - CloudWatchPutMetricPolicy: {}
         - CodePipelineReadOnlyPolicy:
@@ -54,6 +64,7 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: "cron(*/5 * * * ? *)"
+      PermissionsBoundary: !If [HasPermissionBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
       Policies:
         - CloudWatchDashboardPolicy: {}
   PipelineDashboardTrendGenerator:
@@ -69,5 +80,6 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: "cron(*/5 * * * ? *)"
+      PermissionsBoundary: !If [HasPermissionBoundary, !Ref PermissionsBoundary, !Ref AWS::NoValue]
       Policies:
         - CloudWatchDashboardPolicy: {}
