@@ -9,12 +9,12 @@ Parameters:
     Description: "An optional permissions boundary to apply to all roles"
     Type: String
     ConstraintDescription: Must match a valid ARN of an IAM policy for the permission boundary
-    AllowedPattern: "^$|arn:aws:iam::\d{12}:policy/[a-zA-Z]+$"
+    AllowedPattern: "^$|arn:aws:iam::\\d{12}:policy/[a-zA-Z\\-]+$"
     Default: ""
 
 Conditions:
   HasPermissionBoundary:
-    !Not [!Equals [!Ref PermissionBoundary, ""]]
+    !Not [!Equals [!Ref PermissionsBoundary, ""]]
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: mechanicalrock-pipeline-dashboard
