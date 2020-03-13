@@ -144,18 +144,21 @@ class PipelineEventHandler {
     if (value === 0) {
       return;
     }
-    state.metricData.push({
-      MetricName: metricName,
-      Dimensions: [
-        {
-          Name: 'account',
-          Value: state.accountNumber,
-        },
-      ],
-      Timestamp: state.eventTime,
-      Value: value,
-      Unit: unit,
-    });
+    let eventDetail = state.event.detail;
+    if ('pipeline' in eventDetail && !('stage' in eventDetail)) {
+      state.metricData.push({
+        MetricName: metricName,
+        Dimensions: [
+          {
+            Name: 'account',
+            Value: state.accountNumber,
+          },
+        ],
+        Timestamp: state.eventTime,
+        Value: value,
+        Unit: unit,
+      });
+    }
   }
 
   static addMetric(state, metricName, unit, value) {
