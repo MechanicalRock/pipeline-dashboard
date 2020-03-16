@@ -1,6 +1,6 @@
 {
   "name": "pipeline-dashboard",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Simple dashboard for pipelines on AWS",
   "main": "index.js",
   "config": {
